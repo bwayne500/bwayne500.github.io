@@ -897,7 +897,7 @@ class DataFrameWriter {
 
 		 }
 		 }*/
-    },
+    }/*,
 class DataFrameReader {
         constructor(buf) {
             this.bytes = buf;
@@ -957,7 +957,7 @@ class Writer {
         for (let i = 0; i < string.length; i++) this.writeUint8(string.charCodeAt(i))
         this.writeUint8(0)
     }
-}
+}*/
 window.buffers = {
     startBots(url, protocolVersion, clientVersion, userStatus, botsName, botsAmount) {
         const writer = new Writer(13 + url.length + botsName.length)
