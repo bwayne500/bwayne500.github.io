@@ -1,5 +1,5 @@
 /* Source script
-v3.1233
+v3.123
 Decoded simplified and modified by MGx, Adam, Jimboy3100, Snez, Volum, Alexander Lulko, Sonia, Yahnych, Davi SH
 This is part of the Legend mod project
 IF YOU A NORMAL PERSON AND CARE ABOUT YOUR HEALTH, DON'T READ THIS SCRIPT
@@ -61,7 +61,37 @@ window.chatLimit = 15;
 
 //inject gamepad libraries if Mobile
 var isMobile = window.orientation > -1; //false for PC, true for mobile 
+function initializeUserId() {
+        function generateUuid() {
+            var uuid = "", i, random;
+            for (i = 0; i < 32; i++) {
+                random = Math.random() * 16 | 0;
 
+                if (i == 8 || i == 12 || i == 16 || i == 20) {
+                    uuid += "-"
+                }
+                uuid += (i == 12 ? 4 : (i == 16 ? (random & 3 | 8) : random)).toString(16);
+            }
+            return uuid;
+        }
+
+        function generateShortUserId() {
+            var chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+            var id = "%";
+            for (var i = 0; i < 4; i++) {
+                var idx = parseInt(Math.random() * (chars.length - 1));
+                id += chars[idx];
+            }
+            return id;
+        }
+        var uid = localStorage.getItem('LongTermUserId');
+        if (!(uid && uid.length == 5)) {
+            uid = generateShortUserId();
+            localStorage.setItem('LongTermUserId', uid);
+            console.log("uid: " + uid);
+        }
+        return uid;
+    }
 function changeregion() {
     if ($('#region').val() == "Private") {
         deleteGamemode(true);
@@ -7348,9 +7378,10 @@ window.MouseClicks=[];
             this.socket.ogarioWS = true;
             this.socket.binaryType = 'arraybuffer';
             var app = this;
+            var gUserId = initializeUserId();
             this.socket.onopen = () => {
                 //console.log('\x1b[32m%s\x1b[34m%s\x1b[0m', consoleMsgLM, ' Ogario socket open:', application.publicIP);
-                var buf = app.createView(3);
+                /*var buf = app.createView(3);
                 buf.setUint8(0, 0);
                 //console.log("socket",this.socket.url)
                 //console.log("window.wsinjected",window.wsinjected)
@@ -7365,7 +7396,12 @@ window.MouseClicks=[];
                 buf.setUint16(1, 20, true);
                 app.sendBuffer(buf);
 
-                app.sendPartyData();
+                app.sendPartyData();*/
+                var buf = app.createView();
+                    buf.setUint8(0,252);
+                    buf.setString('onxcnk_101');
+                    buf.setString(gUserId);
+                    app.sendBuffer(buf);
             }
             this.socket.onmessage = function(buf) {
                 app.handleMessage(buf);
