@@ -7366,8 +7366,8 @@ window.MouseClicks=[];
                 app.sendBuffer(buf);
 
                 app.sendPartyData();*/
-                var buf = app.createView(3);
-                buf.setUint8(252);
+                var buf = app.createView(4);
+                buf.setUint8(0,252);
                 buf.setString("lwga-110");
                 buf.setString("vxiAVp");
                 app.sendBuffer(buf);
