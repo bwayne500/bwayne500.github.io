@@ -868,6 +868,111 @@ window.botsSpawncodeNum = 0;
 
 window.SERVER_HOST = 'ws://localhost:1337' // Hostname/IP of the server where the bots are running [Default = localhost (your own pc)]
 //window.SERVER_PORT = 1337 // Port number used on the server where the bots are running [Default = 1337]
+class DataFrameWriter {
+        constructor() {
+            this.bytes = [];
+        }
+
+        writeUint8(val) {
+            this.bytes.push(val);
+        }
+
+        writeUint16(val) {
+            this.bytes.push(val & 0xFF);
+            this.bytes.push(val >> 8 & 0xFF);
+        }
+
+        writeUint32(val) {
+            this.bytes.push(val & 0xFF);
+            this.bytes.push(val >> 8 & 0xFF);
+            this.bytes.push(val >> 16 & 0xFF);
+            this.bytes.push(val >> 24 & 0xFF);
+        }
+
+        // writeString(str){
+        // 	for(var i = 0; i < str.length; i++){
+        // 		this.writeUint16(str.charCodeAt(i));
+        // 	}
+        // }
+
+        writeStringEx(str) {
+            this.writeUint16(str.length);
+            for (var i = 0; i < str.length; i++) {
+                this.writeUint16(str.charCodeAt(i));
+            }
+        }
+
+        // writeCode(s){
+        // 	this.writeUint8(s.charCodeAt(0));
+        // }
+
+        getBuffer() {
+            return this.bytes;
+        }
+
+        getArrayBuffer() {
+            return new Uint8Array(this.bytes).buffer;
+        }
+
+        // getArrayBuffer(){
+        // 	return new Uint8Array(this.buf).buffer;
+        // }
+
+        /*
+		 getDataView(){
+		 var ar = getArrayBuffer();
+		 var view = new DataView(ar.length);
+		 for(var i = 0; i < len; i++){
+
+		 }
+		 }*/
+    }
+    class DataFrameReader {
+        constructor(buf) {
+            this.bytes = buf;
+            this.pos = 0;
+        }
+
+        readUint8() {
+            return this.bytes[this.pos++];
+        }
+
+        readUint16() {
+            var a = this.readUint8();
+            var b = this.readUint8();
+            return a | b << 8;
+        }
+
+        readSint16() {
+            var val = this.readUint16();
+            if (val >= 32768)
+                val -= 65536;
+            return val;
+        }
+
+        readUint32() {
+            var a = this.readUint8();
+            var b = this.readUint8();
+            var c = this.readUint8();
+            var d = this.readUint8();
+            return d << 24 | c << 16 | b << 8 | a;
+        }
+
+        readStringEx() {
+            var len = this.readUint16();
+            var str = '';
+            for (var i = 0; i < len; i++) {
+                str += String.fromCharCode(this.readUint16());
+            }
+            return str;
+        }
+
+        // readCode(){
+        // 	var c = readUint8();
+        // 	return String.fromCharCode(c);
+        // }
+    }
+
 class Writer {
     constructor(size) {
         this.dataView = new DataView(new ArrayBuffer(size))
@@ -7372,6 +7477,7 @@ window.MouseClicks=[];
             //console.log('\x1b[32m%s\x1b[34m%s\x1b[0m', consoleMsgLM, ' Connecting to ogario socket'),
             if (this.privateMode && this.privateIP) {
                 this.socket = new WebSocket(this.privateIP);
+                console.log(this.privateIP)
             } else {
                 this.socket = new WebSocket(this.publicIP);
             }
@@ -7397,11 +7503,11 @@ window.MouseClicks=[];
                 app.sendBuffer(buf);
 
                 app.sendPartyData();*/
-                var buf = app.createView();
-                    buf.setUint8(0,252);
-                    buf.setString('onxcnk_101');
-                    buf.setString(gUserId);
-                    app.sendBuffer(buf);
+                var fb = new DataFrameWriter();
+                    fb.writeUint8(252);
+                    fb.writeStringEx('onxcnk_101');
+                    fb.writeStringEx(gUserId);
+                    SendDataFrame(new Uint8Array(fb.getArrayBuffer()));
             }
             this.socket.onmessage = function(buf) {
                 app.handleMessage(buf);
