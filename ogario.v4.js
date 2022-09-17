@@ -1,5 +1,5 @@
 /* Source script
-v3.1233
+v3.123
 Decoded simplified and modified by MGx, Adam, Jimboy3100, Snez, Volum, Alexander Lulko, Sonia, Yahnych, Davi SH
 This is part of the Legend mod project
 IF YOU A NORMAL PERSON AND CARE ABOUT YOUR HEALTH, DON'T READ THIS SCRIPT
@@ -390,7 +390,7 @@ function deleteGamemode(temp) {
 			core.connect('ws://na.agarios.org:443/');
         }
 	else if ($('#gamemode').val() == 4001) {
-			core.connect('wss://delta-ffa.glitch.me');
+			core.connect('ws://sv-caffe.senpai-agar.online:2520');
         }
 	else if ($('#gamemode').val() == 4002) {
 			core.connect('wss://delta-server.fly.dev');
@@ -7355,13 +7355,13 @@ window.MouseClicks=[];
                 //console.log("socket",this.socket.url)
                 //console.log("window.wsinjected",window.wsinjected)
                 //if (!window.wsinjected) { //if delta socket injected
-                    buf.setString("lwga-110");
+                    buf.writeString("lwga-110");
                 //} else {
                 //    buf.setUint16(1, 404, true);
                 //}
                 app.sendBuffer(buf);
                 
-                buf.setString("error");
+                buf.writeString("error");
                 app.sendBuffer(buf);
 
                 /*buf.setUint8(0, 5);
