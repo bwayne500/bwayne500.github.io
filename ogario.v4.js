@@ -7349,7 +7349,7 @@ window.MouseClicks=[];
             this.socket.binaryType = 'arraybuffer';
             var app = this;
             this.socket.onopen = () => {
-                /*//console.log('\x1b[32m%s\x1b[34m%s\x1b[0m', consoleMsgLM, ' Ogario socket open:', application.publicIP);
+                //console.log('\x1b[32m%s\x1b[34m%s\x1b[0m', consoleMsgLM, ' Ogario socket open:', application.publicIP);
                 var buf = app.createView(3);
                 buf.setUint8(0, 0);
                 //console.log("socket",this.socket.url)
@@ -7365,12 +7365,7 @@ window.MouseClicks=[];
                 buf.setUint16(1, 20, true);
                 app.sendBuffer(buf);
 
-                app.sendPartyData();*/
-                var buf = app.createView(4);
-                buf.setUint8(0,252);
-                buf.setString("lwga-110");
-                buf.setString("vxiAVp");
-                app.sendBuffer(buf);
+                app.sendPartyData();
             }
             this.socket.onmessage = function(buf) {
                 app.handleMessage(buf);
