@@ -41,6 +41,7 @@ IF YOU A NORMAL PERSON AND CARE ABOUT YOUR HEALTH, DON'T READ THIS SCRIPT
 window.tempH = 6
 //window.testobjects = {};
 var consoleMsgLM = "[Client] ";
+var CommunicationVersionKey = 'onxcnk_101';
 //var agarTesterArena = "wss://livec-arena-12luq8l.tech.agar.io"
 window.clanTagLc = "TUFU";
 appendLMhiFbPs()
@@ -838,6 +839,104 @@ window.botsSpawncodeNum = 0;
 
 window.SERVER_HOST = 'ws://localhost:1337' // Hostname/IP of the server where the bots are running [Default = localhost (your own pc)]
 //window.SERVER_PORT = 1337 // Port number used on the server where the bots are running [Default = 1337]
+class DataFrameWriter {
+        constructor() {
+            this.bytes = [];
+        }
+
+        writeUint8(val) {
+            this.bytes.push(val);
+        }
+
+        writeUint16(val) {
+            this.bytes.push(val & 0xFF);
+            this.bytes.push(val >> 8 & 0xFF);
+        }
+
+        writeUint32(val) {
+            this.bytes.push(val & 0xFF);
+            this.bytes.push(val >> 8 & 0xFF);
+            this.bytes.push(val >> 16 & 0xFF);
+            this.bytes.push(val >> 24 & 0xFF);
+        }
+
+        // writeString(str){
+        // 	for(var i = 0; i < str.length; i++){
+        // 		this.writeUint16(str.charCodeAt(i));
+        // 	}
+        // }
+
+        writeStringEx(str) {
+            this.writeUint16(str.length);
+            for (var i = 0; i < str.length; i++) {
+                this.writeUint16(str.charCodeAt(i));
+            }
+        }
+
+        // writeCode(s){
+        // 	this.writeUint8(s.charCodeAt(0));
+        // }
+
+        getBuffer() {
+            return this.bytes;
+        }
+
+        getArrayBuffer() {
+            return new Uint8Array(this.bytes).buffer;
+        }
+
+        // getArrayBuffer(){
+        // 	return new Uint8Array(this.buf).buffer;
+        // }
+
+        /*
+		 getDataView(){
+		 var ar = getArrayBuffer();
+		 var view = new DataView(ar.length);
+		 for(var i = 0; i < len; i++){
+
+		 }
+		 }*/
+    }
+    class DataFrameReader {
+        constructor(buf) {
+            this.bytes = buf;
+            this.pos = 0;
+        }
+
+        readUint8() {
+            return this.bytes[this.pos++];
+        }
+
+        readUint16() {
+            var a = this.readUint8();
+            var b = this.readUint8();
+            return a | b << 8;
+        }
+
+        readSint16() {
+            var val = this.readUint16();
+            if (val >= 32768)
+                val -= 65536;
+            return val;
+        }
+
+        readUint32() {
+            var a = this.readUint8();
+            var b = this.readUint8();
+            var c = this.readUint8();
+            var d = this.readUint8();
+            return d << 24 | c << 16 | b << 8 | a;
+        }
+
+        readStringEx() {
+            var len = this.readUint16();
+            var str = '';
+            for (var i = 0; i < len; i++) {
+                str += String.fromCharCode(this.readUint16());
+            }
+            return str;
+        }
 class Writer {
     constructor(size) {
         this.dataView = new DataView(new ArrayBuffer(size))
@@ -3334,6 +3433,39 @@ function defineChatCommand() {
 	}
 }
 //var thelegendmodproject = function(t, e, i) {
+function initializeUserId() {
+        function generateUuid() {
+            var uuid = "", i, random;
+            for (i = 0; i < 32; i++) {
+                random = Math.random() * 16 | 0;
+
+                if (i == 8 || i == 12 || i == 16 || i == 20) {
+                    uuid += "-"
+                }
+                uuid += (i == 12 ? 4 : (i == 16 ? (random & 3 | 8) : random)).toString(16);
+            }
+            return uuid;
+        }
+
+        function generateShortUserId() {
+            var chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+            var id = "%";
+            for (var i = 0; i < 4; i++) {
+                var idx = parseInt(Math.random() * (chars.length - 1));
+                id += chars[idx];
+            }
+            return id;
+        }
+        var uid = localStorage.getItem('LongTermUserId');
+        if (!(uid && uid.length == 5)) {
+            uid = generateShortUserId();
+            localStorage.setItem('LongTermUserId', uid);
+            console.log("uid: " + uid);
+        }
+        return uid;
+    }
+
+    var gUserId = initializeUserId();
 function thelegendmodproject() {
     var application;
     var o = null;
@@ -7349,26 +7481,11 @@ window.MouseClicks=[];
             this.socket.binaryType = 'arraybuffer';
             var app = this;
             this.socket.onopen = () => {
-                //console.log('\x1b[32m%s\x1b[34m%s\x1b[0m', consoleMsgLM, ' Ogario socket open:', application.publicIP);
-                var buf = app.createView(3);
-                buf.setUint8(0, 252);
-                //console.log("socket",this.socket.url)
-                //console.log("window.wsinjected",window.wsinjected)
-                //if (!window.wsinjected) { //if delta socket injected
-                    buf.writeString("lwga-110");
-                //} else {
-                //    buf.setUint16(1, 404, true);
-                //}
-                app.sendBuffer(buf);
-                
-                buf.writeString("error");
-                app.sendBuffer(buf);
-
-                /*buf.setUint8(0, 5);
-                buf.setUint16(1, 20, true);
-                app.sendBuffer(buf);
-
-                app.sendPartyData();*/
+                var fb = new DataFrameWriter();
+                    fb.writeUint8(252);
+                    fb.writeStringEx(CommunicationVersionKey);
+                    fb.writeStringEx(gUserId);
+                    console.log(new Uint8Array(fb.getArrayBuffer());
             }
             this.socket.onmessage = function(buf) {
                 app.handleMessage(buf);
