@@ -897,8 +897,8 @@ class DataFrameWriter {
 
 		 }
 		 }*/
-    }
-    class DataFrameReader {
+    },
+class DataFrameReader {
         constructor(buf) {
             this.bytes = buf;
             this.pos = 0;
@@ -936,7 +936,7 @@ class DataFrameWriter {
                 str += String.fromCharCode(this.readUint16());
             }
             return str;
-        }
+        },
 class Writer {
     constructor(size) {
         this.dataView = new DataView(new ArrayBuffer(size))
