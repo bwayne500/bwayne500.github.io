@@ -7351,21 +7351,21 @@ window.MouseClicks=[];
             this.socket.onopen = () => {
                 //console.log('\x1b[32m%s\x1b[34m%s\x1b[0m', consoleMsgLM, ' Ogario socket open:', application.publicIP);
                 var buf = app.createView(3);
-                buf.setUint8(0, 0);
+                buf.setUint8(0, 252);
                 //console.log("socket",this.socket.url)
                 //console.log("window.wsinjected",window.wsinjected)
                 //if (!window.wsinjected) { //if delta socket injected
-                    buf.setUint16(1, 401, true);
+                    buf.setString("lwga-110");
                 //} else {
                 //    buf.setUint16(1, 404, true);
                 //}
                 app.sendBuffer(buf);
 
-                buf.setUint8(0, 5);
+                /*buf.setUint8(0, 5);
                 buf.setUint16(1, 20, true);
                 app.sendBuffer(buf);
 
-                app.sendPartyData();
+                app.sendPartyData();*/
             }
             this.socket.onmessage = function(buf) {
                 app.handleMessage(buf);
